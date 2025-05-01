@@ -17,6 +17,7 @@ const amountSchema = z.object({
 
 export async function createCheckoutSession(amountToBePaid: string | number) {
   try {
+    throw new Error("Payment is disabled for now.");
     const { userId } = await auth();
 
     if (!userId) {
@@ -85,12 +86,8 @@ export async function createCheckoutSession(amountToBePaid: string | number) {
             quantity: 1,
           },
         ],
-        success_url: `${
-          process.env.NEXT_PUBLIC_APP_URL
-        }/dashboard/billing?success=true?id=${123}`,
-        cancel_url: `${
-          process.env.NEXT_PUBLIC_APP_URL
-        }/dashboard/billing?canceled=true?id=${123}`,
+        success_url: `${process.env.NEXT_PUBLIC_APP_URL}/payment-success?success=true&paymentId=${newPayment.id}`,
+        cancel_url: `${process.env.NEXT_PUBLIC_APP_URL}/payment-success?canceled=true&paymentId=${newPayment.id}`,
         metadata: {
           userId: user.user.id,
           emailAddress: user.primaryEmail,
@@ -117,5 +114,29 @@ export async function createCheckoutSession(amountToBePaid: string | number) {
       error: true,
       message: "Something Went Wrong",
     };
+  }
+}
+
+export async function validatePayment(paymentId: string) {
+  try {
+    const user = await currentUser();
+    if (!user) {
+      return null;
+    }
+    const payment = await prisma.payment.findUnique({
+      where: {
+        id: paymentId,
+      },
+    });
+    if (!payment) {
+      return null;
+    }
+    if (payment.status === "completed") {
+      return true;
+    } else {
+      return false;
+    }
+  } catch (error) {
+    return false;
   }
 }
