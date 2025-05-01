@@ -18,7 +18,10 @@ import { Slider } from "@/components/ui/slider";
 import { CreditCard, Coins } from "lucide-react";
 import getStripe from "@/utils/get-stripejs";
 import { useRouter } from "next/navigation";
-import { createCheckoutSession } from "@/features/stripe/actions/stripe-action";
+import {
+  createCheckoutSession,
+  createCheckoutSessionDisabled,
+} from "@/features/stripe/actions/stripe-action";
 import { getTokenCount } from "@/utils/calculateTokenCount";
 import { toast } from "sonner";
 
@@ -88,10 +91,16 @@ export default function TokenTopUp() {
       return;
     }
     setIntentGenerating(true);
-    const checkoutSession = await createCheckoutSession(amount);
+    const checkoutSession = await createCheckoutSessionDisabled(amount);
+    if (checkoutSession.error) {
+      toast("Error", {
+        description: checkoutSession.message,
+      });
+    }
     if ("url" in checkoutSession) {
       const stripe = await getStripe();
       if (!stripe) return;
+      //@ts-ignore
       await stripe.redirectToCheckout({ sessionId: checkoutSession.id });
     } else {
       toast("Error", {

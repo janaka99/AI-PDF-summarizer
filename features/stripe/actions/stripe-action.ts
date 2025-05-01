@@ -15,9 +15,17 @@ const amountSchema = z.object({
   amount: z.number().min(5, { message: "Amount must be at least 5" }),
 });
 
+export async function createCheckoutSessionDisabled(
+  amountToBePaid: string | number
+) {
+  return {
+    error: true,
+    message: "Currently payment is disabled",
+  };
+}
+
 export async function createCheckoutSession(amountToBePaid: string | number) {
   try {
-    throw new Error("Payment is disabled for now.");
     const { userId } = await auth();
 
     if (!userId) {
