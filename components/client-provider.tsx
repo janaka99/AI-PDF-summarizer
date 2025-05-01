@@ -6,7 +6,9 @@ import React, { ReactNode } from "react";
 export default function ClientWrapper({ children }: { children: ReactNode }) {
   return (
     <ClerkProvider>
-      <ThemeProvider attribute="class">{children}</ThemeProvider>
+      <ThemeProvider attribute="class" defaultTheme="light">
+        {children}
+      </ThemeProvider>
     </ClerkProvider>
   );
 }

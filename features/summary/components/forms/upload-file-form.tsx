@@ -116,7 +116,7 @@ export default function UploadFileForm() {
   };
 
   return (
-    <Container>
+    <Container className="mb-20">
       <Card className="w-full mx-auto">
         <CardContent>
           <Form {...form}>
